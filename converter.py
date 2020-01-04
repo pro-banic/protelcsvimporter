@@ -9,7 +9,10 @@ with open("testdaten/testdatensatz.csv", "r") as csv_file:
 
         for line in csv_reader:
             writer = csv.writer
-            line_new = line
+
+            line_protelparameters=["uhu", "aha", "oho"]
+
+            line_new = line + line_protelparameters
             csv_writer.writerow(line_new)
 
 
