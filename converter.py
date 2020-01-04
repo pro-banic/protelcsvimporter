@@ -1,5 +1,5 @@
 import csv
-
+#todo Umplaute mit cp1005 formatieren oder wie der schit bei protel simpa import heißt
 
 with open("testdaten/testdatensatz.csv", "r") as csv_file:
     csv_reader = csv.reader(csv_file)
@@ -11,7 +11,7 @@ with open("testdaten/testdatensatz.csv", "r") as csv_file:
         for line in csv_reader:
             writer = csv.writer
             line_protelparameters=["uhu", "aha", "oho"]
-# todo iterieren der Kunden
+
             i=i+1
             anzahl=i
             Line_iteration_kundennummer=[anzahl]
