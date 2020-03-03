@@ -1,6 +1,7 @@
 import csv
-#todo Umplaute mit cp-1252 formatieren oder wie der schit bei protel simpa import heißt
+#todo Umplaute mit cp-1252 formatieren oder wie der schit bei protel simba import heißt
 #todo einzelne Daten aus csv extrahieren ( Name usw, um sie korrekt in der ausgabecsv wiederzugeben
+#todo https://wiki.protel.net/index.php?title=Datenkonvertierung#.C3.9Cbernahme_aus_protel_f.C3.BCr_pAIR bis Level 3 Datenübernehmen > testen
 
 with open("testdaten/testdatensatz.csv", "r") as csv_file:
     csv_reader = csv.reader(csv_file)
