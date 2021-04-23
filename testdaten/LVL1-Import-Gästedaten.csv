@@ -1,0 +1,3 @@
+Nachname;Vorname;Straße;PLZ;Ort;Land;Sprache;Geschlecht(m=1,w=2,d=3);EMail;Tel;Briefanrede
+Berge;Sebastian;Musterstraße 44;04275;Leipzig;Deutschland;DE;1;berge@prohotel-edv.de;03519988776655;Sehr geehrter Herr Berge
+Musterfrau;Juliane;Musterstraße 1;01299;Dresden;Deutschland;DE;2;muster@prohotel-edv.de;03519111111;Sehr geehrte Frau Musterfrau
