@@ -138,6 +138,7 @@ def convertlvl1pairtospe():
 
 
 def csvtolvl1():
+    # TODO Fax Nummer noch hinterlegen und importierbar machen
 
     with open("testdaten/LVL1-Import-Gästedaten.csv", "r", encoding='utf8', errors='ignore') as csv_file:
         csv_reader = csv.reader(csv_file, delimiter=';')
@@ -159,7 +160,8 @@ def csvtolvl1():
             # inhalt schreiben
             csv_writer = csv.writer(export_file, delimiter=",")
             print("exportfile: ", export_file)
-
+            inhaltssammler = []
+            j = 0  # index com Zähler
             i = 2000
             for line in csv_reader:
                 writer = csv.writer
@@ -209,6 +211,14 @@ def csvtolvl1():
                 csv_writer.writerow(line_new)
 
                 print(line_new)
+                j += 1
+                if Line_Mail != "":
+                    #gcomline = [j, Line_iteration_kundennummer, 1, Line_Mail]
+                    gcomline = j, Line_iteration_kundennummer, 1, Line_Mail
+                    # 1,838,1,'test@test.de','',0,0
+                    # i,Kundennummer,Kommunikationsart,Inhalt,'',0,0
+                    inhaltssammler.append(gcomline)
+            print("updated Inhaltssammler:", inhaltssammler)
 
             # header natcode schreiben
             header_natcode = "create table natcode (\"abkuerz\" varchar(20) not null default '' ,\"land\" varchar(80) not null default '' ,\"statnr\" int not null default 0 ,\"codenr\" int not null default 0 ,\"sort\" int not null default 0 ,\"gruppe\" int not null default 0 ,\"brkopftyp\" int not null default 0 ,\"sprache\" int not null default 0 ,\"isocode\" varchar(4) not null default '' ,\"state\" varchar(80) not null default '' ,\"showfo\" int not null default 0 ,\"inet\" int not null default 0 ,\"nation\" varchar(80) not null default '' ,\"addinfo\" varchar(50) not null default '' ,\"user01\" int not null default 0 ,\"anreisen1\" int not null default 0 ,\"anzueber1\" int not null default 0 ,\"anreisen2\" int not null default 0 ,\"anzueber2\" int not null default 0 ,\"anreisen3\" int not null default 0 ,\"anzueber3\" int not null default 0 ,\"anreisen4\" int not null default 0 ,\"anzueber4\" int not null default 0 ,\"anreisen5\" int not null default 0 ,\"anzueber5\" int not null default 0 ,\"anreisen6\" int not null default 0 ,\"anzueber6\" int not null default 0 ,\"anreisen7\" int not null default 0 ,\"anzueber7\" int not null default 0 ,\"anreisen8\" int not null default 0 ,\"anzueber8\" int not null default 0 ,\"anreisen9\" int not null default 0 ,\"anzueber9\" int not null default 0 ,\"anreisen10\" int not null default 0 ,\"anzueber10\" int not null default 0 ,\"anreisen11\" int not null default 0 ,\"anzueber11\" int not null default 0 ,\"anreisen12\" int not null default 0 ,\"anzueber12\" int not null default 0 )\n"
@@ -216,7 +226,6 @@ def csvtolvl1():
 
             content_table_natcode = "'D','Deutschland',13,1,0,0,0,4,'DE','',0,1,'','',0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0\n'A','Österreich',33,15,0,0,2,-1,'AT','',0,1,'','',0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0\n'DK','Dänemark',22,4,0,0,2,-1,'DK','',0,1,'','',0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0\n"
             export_file.write(content_table_natcode)
-
 
             # header natcode > 1 = Deutschland
             # create table natcode ("abkuerz" varchar(20) not null default '' ,"land" varchar(80) not null default '' ,"statnr" int not null default 0 ,"codenr" int not null default 0 ,"sort" int not null default 0 ,"gruppe" int not null default 0 ,"brkopftyp" int not null default 0 ,"sprache" int not null default 0 ,"isocode" varchar(4) not null default '' ,"state" varchar(80) not null default '' ,"showfo" int not null default 0 ,"inet" int not null default 0 ,"nation" varchar(80) not null default '' ,"addinfo" varchar(50) not null default '' ,"user01" int not null default 0 ,"anreisen1" int not null default 0 ,"anzueber1" int not null default 0 ,"anreisen2" int not null default 0 ,"anzueber2" int not null default 0 ,"anreisen3" int not null default 0 ,"anzueber3" int not null default 0 ,"anreisen4" int not null default 0 ,"anzueber4" int not null default 0 ,"anreisen5" int not null default 0 ,"anzueber5" int not null default 0 ,"anreisen6" int not null default 0 ,"anzueber6" int not null default 0 ,"anreisen7" int not null default 0 ,"anzueber7" int not null default 0 ,"anreisen8" int not null default 0 ,"anzueber8" int not null default 0 ,"anreisen9" int not null default 0 ,"anzueber9" int not null default 0 ,"anreisen10" int not null default 0 ,"anzueber10" int not null default 0 ,"anreisen11" int not null default 0 ,"anzueber11" int not null default 0 ,"anreisen12" int not null default 0 ,"anzueber12" int not null default 0 )
@@ -261,7 +270,36 @@ def csvtolvl1():
             # 'USA','USA',71,36,0,0,2,-1,'US','',0,1,'','',0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
             # 'NL','Niederlande',31,13,0,0,2,-1,'NL','',0,1,'','',0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
             # 'AUS','Australien',75,40,0,0,0,-1,'AU','',0,1,'','',0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+
+
 csvtolvl1()
+
+
+def addgcomtolvl1():
+    '''zu Level 1 müssen noch die Mailadressen und Telefonnummer usw als GCom Tabelle hinzugefügt werden'''
+
+    # vorab erstellten lvl 1 Datensatz wieder einlesen:
+    with open("testdaten/testdatenexport-lvl1.txt", "r", encoding='utf8', errors='ignore') as csv_file:
+        csv_reader = csv.reader(csv_file)
+        for line in csv_reader:
+            print("Importdatei inhalt: ", line)
+
+        with open("testdaten/testdatenexport-lvl2.txt", "w", encoding='cp1252') as export_file:
+            # table gcom schreiben > Kommunikationsmöglichkeiten pro Gast
+            table_gcom = "create table gcom (\"ref\" int not null default 0 ,\"kdnr\" int not null default 0 ,\"type\" int not null default 0 ,\"entry\" varchar(250) not null default '' ,\"info\" varchar(250) not null default '' ,\"prim\" int not null default 0 ,\"_del\" int not null default 0 )\n"
+            export_file.write(table_gcom)
+
+            '''
+            # Inhalt table gcom schreiben 
+            i=1
+            i+=i
+            #1,838,1,'test@test.de','',0,0
+            i,Kundennummer,Kommunikationsart,Inhalt,'',0,0
+            content_table_gcom = "'D','Deutschland',13,1,0,0,0,4,'DE','',0,1,'','',0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0\n'A','Österreich',33,15,0,0,2,-1,'AT','',0,1,'','',0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0\n'DK','Dänemark',22,4,0,0,2,-1,'DK','',0,1,'','',0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0\n"
+            export_file.write(content_table_natcode)
+            '''
+
+# addgcomtolvl1()
 
 
 def convertlvl1():
