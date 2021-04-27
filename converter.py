@@ -160,8 +160,8 @@ def csvtolvl1():
             # inhalt schreiben
             csv_writer = csv.writer(export_file, delimiter=",")
             print("exportfile: ", export_file)
-            inhaltssammler = []
-            j = 0  # index com Zähler
+            inhaltssammler_gcom = []
+            j = 0  # index gcom Zähler
             i = 2000
             for line in csv_reader:
                 writer = csv.writer
@@ -211,14 +211,15 @@ def csvtolvl1():
                 csv_writer.writerow(line_new)
 
                 print(line_new)
+
+               # Gastkommunikationsarten - gcom table - Content creation
                 j += 1
                 if Line_Mail != "":
                     #gcomline = [j, Line_iteration_kundennummer, 1, Line_Mail]
-                    gcomline = j, Line_iteration_kundennummer, 1, Line_Mail
+                    gcomline = j, anzahl, 1, line[8], "", 0, 0
                     # 1,838,1,'test@test.de','',0,0
                     # i,Kundennummer,Kommunikationsart,Inhalt,'',0,0
-                    inhaltssammler.append(gcomline)
-            print("updated Inhaltssammler:", inhaltssammler)
+                    inhaltssammler_gcom.append(gcomline)
 
             # header natcode schreiben
             header_natcode = "create table natcode (\"abkuerz\" varchar(20) not null default '' ,\"land\" varchar(80) not null default '' ,\"statnr\" int not null default 0 ,\"codenr\" int not null default 0 ,\"sort\" int not null default 0 ,\"gruppe\" int not null default 0 ,\"brkopftyp\" int not null default 0 ,\"sprache\" int not null default 0 ,\"isocode\" varchar(4) not null default '' ,\"state\" varchar(80) not null default '' ,\"showfo\" int not null default 0 ,\"inet\" int not null default 0 ,\"nation\" varchar(80) not null default '' ,\"addinfo\" varchar(50) not null default '' ,\"user01\" int not null default 0 ,\"anreisen1\" int not null default 0 ,\"anzueber1\" int not null default 0 ,\"anreisen2\" int not null default 0 ,\"anzueber2\" int not null default 0 ,\"anreisen3\" int not null default 0 ,\"anzueber3\" int not null default 0 ,\"anreisen4\" int not null default 0 ,\"anzueber4\" int not null default 0 ,\"anreisen5\" int not null default 0 ,\"anzueber5\" int not null default 0 ,\"anreisen6\" int not null default 0 ,\"anzueber6\" int not null default 0 ,\"anreisen7\" int not null default 0 ,\"anzueber7\" int not null default 0 ,\"anreisen8\" int not null default 0 ,\"anzueber8\" int not null default 0 ,\"anreisen9\" int not null default 0 ,\"anzueber9\" int not null default 0 ,\"anreisen10\" int not null default 0 ,\"anzueber10\" int not null default 0 ,\"anreisen11\" int not null default 0 ,\"anzueber11\" int not null default 0 ,\"anreisen12\" int not null default 0 ,\"anzueber12\" int not null default 0 )\n"
@@ -226,6 +227,46 @@ def csvtolvl1():
 
             content_table_natcode = "'D','Deutschland',13,1,0,0,0,4,'DE','',0,1,'','',0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0\n'A','Österreich',33,15,0,0,2,-1,'AT','',0,1,'','',0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0\n'DK','Dänemark',22,4,0,0,2,-1,'DK','',0,1,'','',0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0\n"
             export_file.write(content_table_natcode)
+
+            # header gcom table schreiben
+            header_gcom = "create table gcom (\"ref\" int not null default 0 ,\"kdnr\" int not null default 0 ,\"type\" int not null default 0 ,\"entry\" varchar(250) not null default '' ,\"info\" varchar(250) not null default '' ,\"prim\" int not null default 0 ,\"_del\" int not null default 0 )\n"
+            export_file.write(header_gcom)
+
+            # Gastkommunikationsarten - gcom table - content deploy
+            print("updated Inhaltssammler:", inhaltssammler_gcom)
+            for line in inhaltssammler_gcom:
+                print(line)
+                export_file.write(str(line)+'\n')
+
+            # header gcomref table schreiben
+            header_gcomref = "create table gcomref(\"mpehotel\" int not null default 0, \"kdnr\" int not null default 0)\n"
+            export_file.write(header_gcomref)
+
+            # Gastkommunikationsarten - gcomref table - content deploy
+            gcomref_mpehotel = 1
+            gcomref_end = i  # letzte Kundennummer
+            gcomref_content = str(gcomref_mpehotel) + ", " + str(gcomref_end)
+            export_file.write(gcomref_content+'\n')
+
+            # header gcomtref table schreiben - types of communication
+            header_gcomtref = "create table gcomtref(\"mpehotel\" int not null default 0, \"kdnr\" int not null default 0)\n"
+            export_file.write(header_gcomtref)
+
+            # Gastkommunikationsarten - gcomtref table - content deploy - types of communication - Anzahl der Kommunikationsarten
+            gcomtref_mpehotel = 1
+            gcomtref_end = 3  # Anzahl der Kommunikationsarten, Bsp: Mail + Tele + Fax = 3
+            gcomtref_content = str(gcomtref_mpehotel) + \
+                ", " + str(gcomtref_end)
+            export_file.write(gcomtref_content+'\n')
+
+            # header gcomtype table schreiben - types of communication
+            header_gcomtype = "create table gcomtype(\"ref\" int not null default 0 ,\"class\" int not null default 0 ,\"text\" varchar(250) not null default '' ,\"short\" varchar(50) not null default '' ,\"para\" varchar(100) not null default '' ,\"para2\" varchar(100) not null default '' ,\"para3\" int not null default 0 ,\"para4\" int not null default 0 ,\"para5\" int not null default 0 ,\"para6\" int not null default 0 ,\"para7\" int not null default 0 ,\"para8\" varchar(250) not null default '' ,\"xgroup\" varchar(50) not null default '' ,\"sort\" int not null default 0 ,\"icon\" int not null default 0 ,\"_del\" int not null default 0 ,\"dontshow\" int not null default 0 ,\"hidefo\" int not null default 0 ,\"lockdel\" int not null default 0 ,\"inet\" int not null default 0 )\n"
+            export_file.write(header_gcomtype)
+
+            # Gastkommunikationsarten - gcomtype table - content deploy - types of communication - Anzahl der Kommunikationsarten
+            content_gcomtype = "1,0,'E-Mail','E-Mail','','',19,-1,-1,-1,-1,'','',0,0,0,0,0,0,0\n2,0,'Telefon','Telefon','','',18,-1,-1,-1,-1,'','',0,0,0,0,0,0,0\n3,0,'Mobil','Mobil','','',18,-1,-1,-1,-1,'','',0,0,0,0,0,0,0\n4,0,'Fax','Fax','','',18,-1,-1,-1,-1,'','',0,0,0,0,0,0,0\n"
+            export_file.write(content_gcomtype)
+
 
             # header natcode > 1 = Deutschland
             # create table natcode ("abkuerz" varchar(20) not null default '' ,"land" varchar(80) not null default '' ,"statnr" int not null default 0 ,"codenr" int not null default 0 ,"sort" int not null default 0 ,"gruppe" int not null default 0 ,"brkopftyp" int not null default 0 ,"sprache" int not null default 0 ,"isocode" varchar(4) not null default '' ,"state" varchar(80) not null default '' ,"showfo" int not null default 0 ,"inet" int not null default 0 ,"nation" varchar(80) not null default '' ,"addinfo" varchar(50) not null default '' ,"user01" int not null default 0 ,"anreisen1" int not null default 0 ,"anzueber1" int not null default 0 ,"anreisen2" int not null default 0 ,"anzueber2" int not null default 0 ,"anreisen3" int not null default 0 ,"anzueber3" int not null default 0 ,"anreisen4" int not null default 0 ,"anzueber4" int not null default 0 ,"anreisen5" int not null default 0 ,"anzueber5" int not null default 0 ,"anreisen6" int not null default 0 ,"anzueber6" int not null default 0 ,"anreisen7" int not null default 0 ,"anzueber7" int not null default 0 ,"anreisen8" int not null default 0 ,"anzueber8" int not null default 0 ,"anreisen9" int not null default 0 ,"anzueber9" int not null default 0 ,"anreisen10" int not null default 0 ,"anzueber10" int not null default 0 ,"anreisen11" int not null default 0 ,"anzueber11" int not null default 0 ,"anreisen12" int not null default 0 ,"anzueber12" int not null default 0 )
@@ -270,8 +311,6 @@ def csvtolvl1():
             # 'USA','USA',71,36,0,0,2,-1,'US','',0,1,'','',0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
             # 'NL','Niederlande',31,13,0,0,2,-1,'NL','',0,1,'','',0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
             # 'AUS','Australien',75,40,0,0,0,-1,'AU','',0,1,'','',0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-
-
 csvtolvl1()
 
 
