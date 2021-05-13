@@ -3,21 +3,18 @@ import csv
 
 def csvtolvl1():
     '''Konvertiert csv zu protel lesbarer Form mit SQL Header Tablellen'''
-# TODO Fax Nummer noch hinterlegen und importierbar machen, mit abfragen in Importtabelle
-
-# TODO teilweise ist import encoding anders: encoding='utf8' nutzen und User als Option anbieten
-# TODO xls Import anbieten: csv.reader(csvfile, dialect='excel', **fmtparams)¶
 
 
 # input
-# Nachname;Vorname;Straße;PLZ;Ort;Land;Sprache;Geschlecht(m=1,w=2,d=3);EMail;Tel;Briefanrede
-# Berge;Sebastian;Musterstraße 44;04275;Leipzig;Deutschland;DE;1;berge@prohotel-edv.de;03519988776655;Sehr geehrter Herr Berge
-# Musterfrau;Juliane;Musterstraße 1;01299;Dresden;Deutschland;DE;2;muster@prohotel-edv.de;03519111111;Sehr geehrte Frau Musterfrau
-with open("nongit-livedata/sigl-guests-correct-order.csv", "r", encoding='cp1252', errors='ignore') as csv_file:
+# Nachname;Vorname;Straße;PLZ;Ort;Land;Sprache;Geschlecht(m=1,w=2,d=3);EMail;Tel;Briefanrede;Karteityp(Gast=0,Firma=1);UDF1(Personalnummer)
+# Berge;Sebastian;Musterstraße 44;04275;Leipzig;Deutschland;DE;1;berge@prohotel-edv.de;03519988776655;Sehr geehrter Herr Berge;0;0001
+# Musterfrau;Juliane;Musterstraße 1;01299;Dresden;Deutschland;DE;2;muster@prohotel-edv.de;03519111111;Sehr geehrte Frau Musterfrau;0;0002
+# Tesla;;Teslastraße 1;11299;Berlin;Deutschland;DE;;tesla@prohotel-edv.de;03019111111;Sehr geehrter Herr Musk;1
+with open("nongit-livedata/Leag-firmen.csv", "r", encoding='cp1252', errors='ignore') as csv_file:
     csv_reader = csv.reader(csv_file, delimiter=';')
 
     # output
-    with open("nongit-livedata/sigls-datenexport-lvl2.txt", "w", encoding='cp1252') as export_file:
+    with open("nongit-livedata/leag-datenexport-firma.txt", "w", encoding='cp1252') as export_file:
         # prelude schreiben
         prelude = "-- 'Verbesserung und Kritik an berge@prohotel-edv.de', 'falls dieser Service Ihnen hilft, teilen Sie Ihr Wissen mit einer positiven Bewertung auf https://www.google.com/search?q=google+bewertung+pro+hotel&oq=google+bewertung+pro+hotel&aqs=chrome..69i57j69i64l3.6383j0j9&sourceid=chrome&ie=UTF-8#lrd=0x47a6f938c6a32803:0x3312b6678c6d9ef8,1'\n"
         export_file.write(prelude)
@@ -33,6 +30,7 @@ with open("nongit-livedata/sigl-guests-correct-order.csv", "r", encoding='cp1252
         inhaltssammler_gcom = []
         j = 0  # index gcom Zähler
         i = 2000
+        Line_Karteityp = ["not defined"]
         for line in csv_reader:
             writer = csv.writer
             i = i + 1
@@ -41,8 +39,13 @@ with open("nongit-livedata/sigl-guests-correct-order.csv", "r", encoding='cp1252
             Line_mpe = ["1"]
             Line_emptyvalue = [""]
             Line_emptydate = ["1900 - 01 - 01"]
-            # TODO   0 = privat | 1 = Firma mit abfragen in Importtabelle bei Karteityp
-            Line_Karteityp = ["0"]
+            # Line_Karteityp > 0 = privat | 1 = Firma mit abfragen in Importtabelle bei Karteityp
+            if [line[11]] == ["1"]:
+                print(1)
+                Line_Karteityp = ["1"]
+            elif [line[11]] == ["0"]:
+                print(0)
+                Line_Karteityp = ["0"]
             Line_Nachname = [line[0]]
             Line_Vorname = [line[1]]
             Line_Strasse = [line[2]]
@@ -76,7 +79,7 @@ with open("nongit-livedata/sigl-guests-correct-order.csv", "r", encoding='cp1252
                 2 * Line_emptyvalue + Line_nat + Line_emptyvalue + Line_sprache + 2 * Line_emptyvalue + Line_Anrede + Line_Begruessung + \
                 Line_emptyvalue + Line_emptyvalue + Line_emptyvalue + 136 * Line_emptyvalue
             '''
-            #Import Mail und Telefonnummer direkt in die tablelle kunden" > geht nicht bei Air
+            #Alternative SPE Import: Mail und Telefonnummer direkt in die tablelle kunden > geht nicht bei Air
             line_new = Line_iteration_kundennummer + Line_emptyvalue + Line_mpe + \
                 6 * Line_emptyvalue + Line_Karteityp + Line_Nachname + Line_emptyvalue + Line_Vorname + 2 * Line_emptyvalue + \
                 Line_Strasse + 2 * Line_emptyvalue + Line_plz + 2 * Line_emptyvalue + Line_Stadt + Line_Land + Line_landkz + \
@@ -98,34 +101,18 @@ with open("nongit-livedata/sigl-guests-correct-order.csv", "r", encoding='cp1252
                 gcomline_mail = str(j) + "," + str(anzahl) + "," + \
                     "1" + ","+"'"+str(line[8])+"'" + ","+'"",0,0'
                 inhaltssammler_gcom.append(gcomline_mail)
-                '''
-                oldschool way Backup:
-                # gcomline = j + "," + anzahl + "," + "1" + ","+str(line[8]) + ","+'"/'
-                #  gcomline = j, anzahl, 1, line[8], "", 0, 0
-                # inhaltssammler_gcom.append(str(gcomline_telefonnummer)[1:-1])
-                print(gcomline)
-                # print(line[8])
-
-                # i,Kundennummer,Kommunikationsart,Inhalt,'',0,0
-                '''
 
             if line[9] != '':
                 j += 1
                 gcomline_telefonnummer = str(j) + "," + str(anzahl) + "," + \
                     "2" + ","+"'"+str(line[9])+"'" + ","+'"",0,0'
                 inhaltssammler_gcom.append(gcomline_telefonnummer)
-            '''if Line_Tel != "":  # TODO leere Einträge werden dennoch angelegt und nicht übersprungen
-                gcomline_telefonnummer = j, anzahl, 2, line[9], "", 0, 0
-                # print(line[9])
-                inhaltssammler_gcom.append(str(gcomline_telefonnummer)[1:-1])
-                # print(str(gcomline)[1:-1])
-                '''
 
         # header natcode schreiben
         header_natcode = "create table natcode (\"abkuerz\" varchar(20) not null default '' ,\"land\" varchar(80) not null default '' ,\"statnr\" int not null default 0 ,\"codenr\" int not null default 0 ,\"sort\" int not null default 0 ,\"gruppe\" int not null default 0 ,\"brkopftyp\" int not null default 0 ,\"sprache\" int not null default 0 ,\"isocode\" varchar(4) not null default '' ,\"state\" varchar(80) not null default '' ,\"showfo\" int not null default 0 ,\"inet\" int not null default 0 ,\"nation\" varchar(80) not null default '' ,\"addinfo\" varchar(50) not null default '' ,\"user01\" int not null default 0 ,\"anreisen1\" int not null default 0 ,\"anzueber1\" int not null default 0 ,\"anreisen2\" int not null default 0 ,\"anzueber2\" int not null default 0 ,\"anreisen3\" int not null default 0 ,\"anzueber3\" int not null default 0 ,\"anreisen4\" int not null default 0 ,\"anzueber4\" int not null default 0 ,\"anreisen5\" int not null default 0 ,\"anzueber5\" int not null default 0 ,\"anreisen6\" int not null default 0 ,\"anzueber6\" int not null default 0 ,\"anreisen7\" int not null default 0 ,\"anzueber7\" int not null default 0 ,\"anreisen8\" int not null default 0 ,\"anzueber8\" int not null default 0 ,\"anreisen9\" int not null default 0 ,\"anzueber9\" int not null default 0 ,\"anreisen10\" int not null default 0 ,\"anzueber10\" int not null default 0 ,\"anreisen11\" int not null default 0 ,\"anzueber11\" int not null default 0 ,\"anreisen12\" int not null default 0 ,\"anzueber12\" int not null default 0 )\n"
         export_file.write(header_natcode)
 
-        content_table_natcode = "'D','Deutschland',13,1,0,0,0,4,'DE','',0,1,'','',0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0\n'A','Österreich',33,15,0,0,2,-1,'AT','',0,1,'','',0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0\n'DK','Dänemark',22,4,0,0,2,-1,'DK','',0,1,'','',0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0\n"
+        content_table_natcode = "'D','Deutschland',13,1,0,0,0,4,'DE','',0,1,'','',0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0\n'A','Österreich',33,15,0,0,2,-1,'AT','',0,1,'','',0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0\n'DK','Dänemark',22,4,0,0,2,-1,'DK','',0,1,'','',0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0\n,'CZ','Tschische Republik',40,22,0,0,2,-1,'','',0,1,'','',0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0\n"
         export_file.write(content_table_natcode)
 
         # header gcom table schreiben
