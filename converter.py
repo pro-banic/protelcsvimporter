@@ -41,10 +41,8 @@ with open("nongit-livedata/Leag-firmen.csv", "r", encoding='cp1252', errors='ign
             Line_emptydate = ["1900 - 01 - 01"]
             # Line_Karteityp > 0 = privat | 1 = Firma mit abfragen in Importtabelle bei Karteityp
             if [line[11]] == ["1"]:
-                print(1)
                 Line_Karteityp = ["1"]
             elif [line[11]] == ["0"]:
-                print(0)
                 Line_Karteityp = ["0"]
             Line_Nachname = [line[0]]
             Line_Vorname = [line[1]]
