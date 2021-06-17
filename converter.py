@@ -6,15 +6,18 @@ def csvtolvl1():
 
 
 # input
-# Nachname;Vorname;Straße;PLZ;Ort;Land;Sprache;Geschlecht(m=1,w=2,d=3);EMail;Tel;Briefanrede;Karteityp(Gast=0,Firma=1);UDF1(Personalnummer)
-# Berge;Sebastian;Musterstraße 44;04275;Leipzig;Deutschland;DE;1;berge@prohotel-edv.de;03519988776655;Sehr geehrter Herr Berge;0;0001
-# Musterfrau;Juliane;Musterstraße 1;01299;Dresden;Deutschland;DE;2;muster@prohotel-edv.de;03519111111;Sehr geehrte Frau Musterfrau;0;0002
+# Nachname;Vorname;Straße;PLZ;Ort;Land;Sprache;Geschlecht(m=1,w=2,d=3);EMail;Tel;Briefanrede;Karteityp(Gast=0,Firma=1)
+# Berge;Sebastian;Musterstraße 44;04275;Leipzig;Deutschland;DE;1;berge@prohotel-edv.de;03519988776655;Sehr geehrter Herr Berge;0
+# Musterfrau;Juliane;Musterstraße 1;01299;Dresden;Deutschland;DE;2;muster@prohotel-edv.de;03519111111;Sehr geehrte Frau Musterfrau;0
 # Tesla;;Teslastraße 1;11299;Berlin;Deutschland;DE;;tesla@prohotel-edv.de;03019111111;Sehr geehrter Herr Musk;1
-with open("nongit-livedata/Einspieler-Gast-mod.csv", "r", encoding='cp1252', errors='ignore') as csv_file:
-    csv_reader = csv.reader(csv_file, delimiter=',')
+
+# TODO Gästedaten und Firmendaten grundsätlich getrennt von Kundenabfordern und Vorlage erstellen die Sie uns zuarbeiten müssen
+# TODO error abfangen wenn delimiter ; statt , in csv damit nicht lange gesucht werden muss
+with open("nongit-livedata/velo-importdaten.csv", "r", encoding='utf8', errors='ignore') as csv_file:
+    csv_reader = csv.reader(csv_file, delimiter=';')
 
     # output
-    with open("nongit-livedata/leag-datenexport-gast.txt", "w", encoding='cp1252') as export_file:
+    with open("nongit-livedata/velo-datenexport-gast.txt", "w", encoding='cp1252') as export_file:
         # prelude schreiben
         prelude = "-- 'Verbesserung und Kritik an berge@prohotel-edv.de', 'falls dieser Service Ihnen hilft, teilen Sie Ihr Wissen mit einer positiven Bewertung auf https://www.google.com/search?q=google+bewertung+pro+hotel&oq=google+bewertung+pro+hotel&aqs=chrome..69i57j69i64l3.6383j0j9&sourceid=chrome&ie=UTF-8#lrd=0x47a6f938c6a32803:0x3312b6678c6d9ef8,1'\n"
         export_file.write(prelude)
