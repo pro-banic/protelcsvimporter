@@ -11,13 +11,24 @@ def csvtolvl1():
 # Musterfrau;Juliane;Musterstraße 1;01299;Dresden;Deutschland;DE;2;muster@prohotel-edv.de;03519111111;Sehr geehrte Frau Musterfrau;0
 # Tesla;;Teslastraße 1;11299;Berlin;Deutschland;DE;;tesla@prohotel-edv.de;03019111111;Sehr geehrter Herr Musk;1
 
-# TODO Gästedaten und Firmendaten grundsätlich getrennt von Kundenabfordern und Vorlage erstellen die Sie uns zuarbeiten müssen
+# TODO Gästedaten und Firmendaten grundsätlich getrennt von Kundenabfordern und Vorlage erstellen die Sie uns zuarbeiten müssen?
 # TODO error abfangen wenn delimiter ; statt , in csv damit nicht lange gesucht werden muss
-with open("nongit-livedata/velo-importdaten.csv", "r", encoding='utf8', errors='ignore') as csv_file:
+# TODO Länder noch weiter hinterlegen (Frankreich, England, Polen usw) > erledigt > noch testen
+# TODO Formel in xls wegen Firma in Anrede gleich mit in python einbinden (sucht "Firma" in der Anrede und ergänzt das Flag 1): =WENN(ISTFEHLER(FINDEN("Firma";K1;1));"0";"1")
+# TODO Konvertierung bricht bei sonderzeichen (kyrillisch uws ab > Konvertierung der Sonderzeichen in utf8 vorher einbauen in python)
+
+#global variables
+
+# encoding
+''' möglich: utf8 und cp1252 '''
+input_encoding = str("cp1252")
+output_encoding = str("cp1252")
+
+with open("testdaten/testdatensatz-mitfirma-flag.csv", "r", encoding=input_encoding, errors='ignore') as csv_file:
     csv_reader = csv.reader(csv_file, delimiter=';')
 
     # output
-    with open("nongit-livedata/velo-datenexport-gast.txt", "w", encoding='cp1252') as export_file:
+    with open("testdaten/test-datenexport-mitfirma-flag.txt", "w", encoding=output_encoding) as export_file:
         # prelude schreiben
         prelude = "-- 'Verbesserung und Kritik an berge@prohotel-edv.de', 'falls dieser Service Ihnen hilft, teilen Sie Ihr Wissen mit einer positiven Bewertung auf https://www.google.com/search?q=google+bewertung+pro+hotel&oq=google+bewertung+pro+hotel&aqs=chrome..69i57j69i64l3.6383j0j9&sourceid=chrome&ie=UTF-8#lrd=0x47a6f938c6a32803:0x3312b6678c6d9ef8,1'\n"
         export_file.write(prelude)
@@ -52,7 +63,6 @@ with open("nongit-livedata/velo-importdaten.csv", "r", encoding='utf8', errors='
             Line_Strasse = [line[2]]
             Line_plz = [line[3]]
             Line_Stadt = [line[4]]
-            # todo land noch anpassen wegen weiterer Tabelle
             Line_Land = [line[5]]  # Deutschland
             Line_landkz = [line[6]]  # DE
             Line_gender = [line[7]]  # 1 = männlich, 2 = weiblich
@@ -113,7 +123,37 @@ with open("nongit-livedata/velo-importdaten.csv", "r", encoding='utf8', errors='
         header_natcode = "create table natcode (\"abkuerz\" varchar(20) not null default '' ,\"land\" varchar(80) not null default '' ,\"statnr\" int not null default 0 ,\"codenr\" int not null default 0 ,\"sort\" int not null default 0 ,\"gruppe\" int not null default 0 ,\"brkopftyp\" int not null default 0 ,\"sprache\" int not null default 0 ,\"isocode\" varchar(4) not null default '' ,\"state\" varchar(80) not null default '' ,\"showfo\" int not null default 0 ,\"inet\" int not null default 0 ,\"nation\" varchar(80) not null default '' ,\"addinfo\" varchar(50) not null default '' ,\"user01\" int not null default 0 ,\"anreisen1\" int not null default 0 ,\"anzueber1\" int not null default 0 ,\"anreisen2\" int not null default 0 ,\"anzueber2\" int not null default 0 ,\"anreisen3\" int not null default 0 ,\"anzueber3\" int not null default 0 ,\"anreisen4\" int not null default 0 ,\"anzueber4\" int not null default 0 ,\"anreisen5\" int not null default 0 ,\"anzueber5\" int not null default 0 ,\"anreisen6\" int not null default 0 ,\"anzueber6\" int not null default 0 ,\"anreisen7\" int not null default 0 ,\"anzueber7\" int not null default 0 ,\"anreisen8\" int not null default 0 ,\"anzueber8\" int not null default 0 ,\"anreisen9\" int not null default 0 ,\"anzueber9\" int not null default 0 ,\"anreisen10\" int not null default 0 ,\"anzueber10\" int not null default 0 ,\"anreisen11\" int not null default 0 ,\"anzueber11\" int not null default 0 ,\"anreisen12\" int not null default 0 ,\"anzueber12\" int not null default 0 )\n"
         export_file.write(header_natcode)
 
-        content_table_natcode = "'D','Deutschland',13,1,0,0,0,4,'DE','',0,1,'','',0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0\n'A','Österreich',33,15,0,0,2,-1,'AT','',0,1,'','',0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0\n'DK','Dänemark',22,4,0,0,2,-1,'DK','',0,1,'','',0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0\n,'CZ','Tschische Republik',40,22,0,0,2,-1,'','',0,1,'','',0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0\n"
+        content_table_natcode = "\
+'D','Deutschland',13,1,0,0,0,4,'DE','',0,1,'','',0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0\n\
+'A','Österreich',33,15,0,0,2,-1,'AT','',0,1,'','',0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0\n\
+'DK','Dänemark',22,4,0,0,2,-1,'DK','',0,1,'','',0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0\n\
+'CZ','Tschechische Republik',40,22,0,0,2,-1,'CZ','',0,1,'','',0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0\n\
+'J','Japan',63,31,0,0,0,0,'JP','',0,1,'','',0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0\n\
+'B','Belgien',21,3,0,0,2,-1,'BE','',0,1,'','',0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0\n\
+'BRA','Brasilien',73,38,0,0,2,-1,'BR','',0,1,'','',0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0\n\
+'CAN','Kanada',70,35,0,0,2,-1,'CA','',0,1,'','',0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0\n\
+'CH','Schweiz',38,20,0,0,2,-1,'CH','',0,1,'','',0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0\n\
+'DK','Dänemark',22,4,0,0,2,-1,'DK','',0,1,'','',0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0\n\
+'S','Schweden',37,19,0,0,2,-1,'SE','',0,1,'','',0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0\n\
+'E','Spanien',39,21,0,0,2,-1,'ES','',0,1,'','',0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0\n\
+'F','Frankreich',24,6,0,0,2,-1,'FR','',0,1,'','',0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0\n\
+'FI','Finnland',23,5,0,0,2,-1,'FI','',0,1,'','',0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0\n\
+'GB','Großbritanien',26,8,0,0,1,-1,'en','',0,1,'','',0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0\n\
+'GR','Griechenland',25,7,0,0,2,-1,'GR','',0,1,'','',0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0\n\
+'H','Ungarn',42,24,0,0,2,-1,'HU','',0,1,'','',0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0\n\
+'I','Italien',29,11,0,0,2,-1,'IT','',0,1,'','',0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0\n\
+'IRL','Irland',27,9,0,0,2,-1,'IE','',0,1,'','',0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0\n\
+'ISL','Island',28,10,0,0,2,-1,'IS','',0,1,'','',0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0\n\
+'L','Luxembourg',30,12,0,0,2,-1,'','',0,1,'','',0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0\n\
+'N','Norwegen',32,14,0,0,2,-1,'NO','',0,1,'','',0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0\n\
+'P','Portugal',35,17,0,0,2,-1,'PT','',0,1,'','',0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0\n\
+'PL','Polen',34,16,0,0,2,-1,'PL','',0,1,'','',0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0\n\
+'GUS','Rußland',36,18,0,0,2,-1,'RU','',0,1,'','',0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0\n\
+'TK','Türkei',41,23,0,0,2,-1,'TR','',0,1,'','',0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0\n\
+'USA','USA',71,36,0,0,2,-1,'US','',0,1,'','',0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0\n\
+'NL','Niederlande',31,13,0,0,2,-1,'NL','',0,1,'','',0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0\n\
+'AUS','Australien',75,40,0,0,0,-1,'AU','',0,1,'','',0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0\n\
+"
         export_file.write(content_table_natcode)
 
         # header gcom table schreiben
