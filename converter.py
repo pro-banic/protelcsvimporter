@@ -22,6 +22,7 @@ def csvtolvl1():
 # encoding
 ''' möglich: utf8 und cp1252 '''
 input_encoding = str("cp1252")
+# output sollte immer cp1252 sein, da der Import von protel so ausgelegt ist
 output_encoding = str("cp1252")
 
 with open("testdaten/testdatensatz-mitfirma-flag.csv", "r", encoding=input_encoding, errors='ignore') as csv_file:
