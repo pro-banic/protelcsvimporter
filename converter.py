@@ -16,6 +16,7 @@ def csvtolvl1():
 # TODO Länder noch weiter hinterlegen (Frankreich, England, Polen usw) > erledigt > noch testen
 # TODO Formel in xls wegen Firma in Anrede gleich mit in python einbinden (sucht "Firma" in der Anrede und ergänzt das Flag 1): =WENN(ISTFEHLER(FINDEN("Firma";K1;1));"0";"1")
 # TODO Konvertierung bricht bei sonderzeichen (kyrillisch uws ab > Konvertierung der Sonderzeichen in utf8 vorher einbauen in python)
+# TODO xls wegen Anrede vorab =WENN(A2="Herr"; "Sehr geehrter Herr "&E2;WENN(A2="Frau"; "Sehr geehrte Frau "&E2; "Sehr geehrte Damen und Herren") )
 
 #global variables
 
