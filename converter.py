@@ -6,12 +6,13 @@ def csvtolvl1():
 
 
 # input
-# Nachname;Vorname;Straße;PLZ;Ort;Land;Sprache;Geschlecht(m=1,w=2,d=3);EMail;Tel;Briefanrede;Karteityp(Gast=0,Firma=1)
-# Berge;Sebastian;Musterstraße 44;04275;Leipzig;Deutschland;DE;1;berge@prohotel-edv.de;03519988776655;Sehr geehrter Herr Berge;0
-# Musterfrau;Juliane;Musterstraße 1;01299;Dresden;Deutschland;DE;2;muster@prohotel-edv.de;03519111111;Sehr geehrte Frau Musterfrau;0
-# Tesla;;Teslastraße 1;11299;Berlin;Deutschland;DE;;tesla@prohotel-edv.de;03019111111;Sehr geehrter Herr Musk;1
+# Nachname;Vorname;Straße;PLZ;Ort;Land;Sprache;Geschlecht(m=1,w=2,d=3);EMail;Tel;Briefanrede;Karteityp(Gast=0,Firma=1);VIPcode;Marketingcode
+# Berge;Sebastian;Musterstraße 44;04275;Leipzig;Deutschland;DE;1;berge@prohotel-edv.de;03519988776655;Sehr geehrter Herr Berge;0;Stammgast;Sportler
+# Musterfrau;Juliane;Musterstraße 1;01299;Dresden;Deutschland;DE;2;muster@prohotel-edv.de;03519111111;Sehr geehrte Frau Musterfrau;0;;;
+# Tesla;;Teslastraße 1;11299;Berlin;Deutschland;DE;;tesla@prohotel-edv.de;03019111111;Sehr geehrter Herr Musk;1;Alien;EAuto
 
-# TODO Gästedaten und Firmendaten grundsätlich getrennt von Kundenabfordern und Vorlage erstellen die Sie uns zuarbeiten müssen?
+# TODO Marketcodes und VIP Codes mit verarbeiten
+# TODO Gästedaten und Firmendaten grundsätzlich getrennt von Kundenabfordern und Vorlage erstellen die Sie uns zuarbeiten müssen?
 # TODO error abfangen wenn delimiter ; statt , in csv damit nicht lange gesucht werden muss
 # TODO Länder noch weiter hinterlegen (Frankreich, England, Polen usw) > erledigt > noch testen
 # TODO Formel in xls wegen Firma in Anrede gleich mit in python einbinden (sucht "Firma" in der Anrede und ergänzt das Flag 1): =WENN(ISTFEHLER(FINDEN("Firma";K1;1));"0";"1")
@@ -30,7 +31,7 @@ with open("testdaten/testdatensatz-mitfirma-flag.csv", "r", encoding=input_encod
     csv_reader = csv.reader(csv_file, delimiter=';')
 
     # output
-    with open("testdaten/test-datenexport-mitfirma-flag.txt", "w", encoding=output_encoding) as export_file:
+    with open("testdaten/test-datenexport-mitfirma-vip-marketing.txt", "w", encoding=output_encoding) as export_file:
         # prelude schreiben
         prelude = "-- 'Verbesserung und Kritik an berge@prohotel-edv.de', 'falls dieser Service Ihnen hilft, teilen Sie Ihr Wissen mit einer positiven Bewertung auf https://www.google.com/search?q=google+bewertung+pro+hotel&oq=google+bewertung+pro+hotel&aqs=chrome..69i57j69i64l3.6383j0j9&sourceid=chrome&ie=UTF-8#lrd=0x47a6f938c6a32803:0x3312b6678c6d9ef8,1'\n"
         export_file.write(prelude)
@@ -44,7 +45,9 @@ with open("testdaten/testdatensatz-mitfirma-flag.csv", "r", encoding=input_encod
         csv_writer = csv.writer(export_file, delimiter=",")
         print("exportfile: ", export_file)
         inhaltssammler_gcom = []
+        inhaltssammler_vipcode = []
         j = 0  # index gcom Zähler
+        vipcounter = 0 
         i = 2000
         Line_Karteityp = ["not defined"]
         for line in csv_reader:
@@ -84,12 +87,14 @@ with open("testdaten/testdatensatz-mitfirma-flag.csv", "r", encoding=input_encod
             Line_Begruessung = [line[10]]  # Sehr geehrte Frau XY
             Line_Tel = [line[9]]
             Line_Mail = [line[8]]
+            Line_VIP = [line[12]]
+            Line_Marketing = [line[13]]
 
             line_new = Line_iteration_kundennummer + Line_emptyvalue + Line_mpe + \
                 6 * Line_emptyvalue + Line_Karteityp + Line_Nachname + Line_emptyvalue + Line_Vorname + 2 * Line_emptyvalue + \
                 Line_Strasse + 2 * Line_emptyvalue + Line_plz + 2 * Line_emptyvalue + Line_Stadt + Line_Land + Line_landkz + \
                 Line_emptyvalue + Line_gender + \
-                2 * Line_emptyvalue + Line_nat + Line_emptyvalue + Line_sprache + 2 * Line_emptyvalue + Line_Anrede + Line_Begruessung + \
+                2 * Line_emptyvalue + Line_nat + Line_Marketing + Line_sprache + Line_VIP + Line_emptyvalue + Line_Anrede + Line_Begruessung + \
                 Line_emptyvalue + Line_emptyvalue + Line_emptyvalue + 136 * Line_emptyvalue
             '''
             #Alternative SPE Import: Mail und Telefonnummer direkt in die tablelle kunden > geht nicht bei Air
@@ -111,15 +116,31 @@ with open("testdaten/testdatensatz-mitfirma-flag.csv", "r", encoding=input_encod
                 # gcomline = [j, Line_iteration_kundennummer, 1, Line_Mail]
                 # 1,838,1,'test@test.de','',0,0
                 j += 1
+                #print ("mail", j) 
                 gcomline_mail = str(j) + "," + str(anzahl) + "," + \
                     "1" + ","+"'"+str(line[8])+"'" + ","+'"",0,0'
                 inhaltssammler_gcom.append(gcomline_mail)
 
             if line[9] != '':
                 j += 1
+                #print ("tele", j) 
                 gcomline_telefonnummer = str(j) + "," + str(anzahl) + "," + \
                     "2" + ","+"'"+str(line[9])+"'" + ","+'"",0,0'
                 inhaltssammler_gcom.append(gcomline_telefonnummer)
+
+            # inhaltssammler VIPCodes
+            if line[12] != '':
+                vipcounter += 1      
+                #print ("vip", vipcounter)     
+                content_vipcode = "'" + str(line[12]) + "'" + "," + "'" + str(line[12]) + "'" + "," + str(vipcounter) + ","+ "0" + ","+ "1" + "," + "'" + "'" +  "," + "0" +  ","+ "'" + "'" 
+                inhaltssammler_vipcode.append(content_vipcode)
+
+            #Bsp:
+            #'VIP1','VIP1',1,0,1,'Begrüßungsgetränk und Wellness- GS',0,''
+            #'VIP2','VIP2',2,0,1,'Begrüßungsgetränk, Wellness- GS, Obst, Sekt',0,''
+            #'Black1','Bläcklist1',3,0,1,'keine Reservierung ohne CC Info',0,''
+            #'Black2','Bläcklist2',4,1,1,'Unser Haus ist ausgebucht!{\r}{\n}keine Reservierung annehmen',0,''
+            #'Checklist','Checkliste',5,0,0,'Checkliste zur Installation (nicht löschen)',0,''
 
         # header natcode schreiben
         header_natcode = "create table natcode (\"abkuerz\" varchar(20) not null default '' ,\"land\" varchar(80) not null default '' ,\"statnr\" int not null default 0 ,\"codenr\" int not null default 0 ,\"sort\" int not null default 0 ,\"gruppe\" int not null default 0 ,\"brkopftyp\" int not null default 0 ,\"sprache\" int not null default 0 ,\"isocode\" varchar(4) not null default '' ,\"state\" varchar(80) not null default '' ,\"showfo\" int not null default 0 ,\"inet\" int not null default 0 ,\"nation\" varchar(80) not null default '' ,\"addinfo\" varchar(50) not null default '' ,\"user01\" int not null default 0 ,\"anreisen1\" int not null default 0 ,\"anzueber1\" int not null default 0 ,\"anreisen2\" int not null default 0 ,\"anzueber2\" int not null default 0 ,\"anreisen3\" int not null default 0 ,\"anzueber3\" int not null default 0 ,\"anreisen4\" int not null default 0 ,\"anzueber4\" int not null default 0 ,\"anreisen5\" int not null default 0 ,\"anzueber5\" int not null default 0 ,\"anreisen6\" int not null default 0 ,\"anzueber6\" int not null default 0 ,\"anreisen7\" int not null default 0 ,\"anzueber7\" int not null default 0 ,\"anreisen8\" int not null default 0 ,\"anzueber8\" int not null default 0 ,\"anreisen9\" int not null default 0 ,\"anzueber9\" int not null default 0 ,\"anreisen10\" int not null default 0 ,\"anzueber10\" int not null default 0 ,\"anreisen11\" int not null default 0 ,\"anzueber11\" int not null default 0 ,\"anreisen12\" int not null default 0 ,\"anzueber12\" int not null default 0 )\n"
@@ -197,51 +218,28 @@ with open("testdaten/testdatensatz-mitfirma-flag.csv", "r", encoding=input_encod
         content_gcomtype = "1,0,'E-Mail','E-Mail','','',18,-1,-1,-1,-1,'','',0,0,0,0,0,0,0\n2,0,'Telefon','Telefon','','',18,-1,-1,-1,-1,'','',0,0,0,0,0,0,0\n3,0,'Mobil','Mobil','','',18,-1,-1,-1,-1,'','',0,0,0,0,0,0,0\n4,0,'Fax','Fax','','',18,-1,-1,-1,-1,'','',0,0,0,0,0,0,0\n"
         export_file.write(content_gcomtype)
 
-        # header natcode > 1 = Deutschland
-        # create table natcode ("abkuerz" varchar(20) not null default '' ,"land" varchar(80) not null default '' ,"statnr" int not null default 0 ,"codenr" int not null default 0 ,"sort" int not null default 0 ,"gruppe" int not null default 0 ,"brkopftyp" int not null default 0 ,"sprache" int not null default 0 ,"isocode" varchar(4) not null default '' ,"state" varchar(80) not null default '' ,"showfo" int not null default 0 ,"inet" int not null default 0 ,"nation" varchar(80) not null default '' ,"addinfo" varchar(50) not null default '' ,"user01" int not null default 0 ,"anreisen1" int not null default 0 ,"anzueber1" int not null default 0 ,"anreisen2" int not null default 0 ,"anzueber2" int not null default 0 ,"anreisen3" int not null default 0 ,"anzueber3" int not null default 0 ,"anreisen4" int not null default 0 ,"anzueber4" int not null default 0 ,"anreisen5" int not null default 0 ,"anzueber5" int not null default 0 ,"anreisen6" int not null default 0 ,"anzueber6" int not null default 0 ,"anreisen7" int not null default 0 ,"anzueber7" int not null default 0 ,"anreisen8" int not null default 0 ,"anzueber8" int not null default 0 ,"anreisen9" int not null default 0 ,"anzueber9" int not null default 0 ,"anreisen10" int not null default 0 ,"anzueber10" int not null default 0 ,"anreisen11" int not null default 0 ,"anzueber11" int not null default 0 ,"anreisen12" int not null default 0 ,"anzueber12" int not null default 0 )
-        # 'BS','Baltische Staaten',20,2,0,0,0,0,'','',0,1,'','',0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-        # 'EU','Sonstiges Europa',43,25,0,0,0,0,'','',0,1,'','',0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-        # 'RS','Republik Südafrika',50,26,0,0,0,0,'','',0,1,'','',0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-        # 'GOL','Arabische Golfstaaten',60,28,0,0,0,-1,'','',0,1,'','',0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-        # 'CHI','China & Honkong',61,29,0,0,0,-1,'','',0,1,'','',0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-        # 'IL','Israel',62,30,0,0,0,-1,'IL','',0,1,'','',0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-        # 'J','Japan',63,31,0,0,0,0,'JP','',0,1,'','',0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-        # 'SKO','Südkorea',64,32,0,0,0,-1,'KP','',0,1,'','',0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-        # 'TWA','Taiwan',65,33,0,0,0,0,'TW','',0,1,'','',0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-        # 'ASI','Sonstiges Asien',66,34,0,0,0,-1,'','',0,1,'','',0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-        # 'AMS','Mittelamerika',72,37,0,0,0,-1,'','',0,1,'','',0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-        # 'SAM','Südamerika',74,39,0,0,0,-1,'','',0,1,'','',0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-        # 'OA','Ohne Angaben',90,41,0,0,0,-1,'','',0,1,'','',0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-        # 'D','Deutschland',13,1,0,0,0,4,'DE','',0,1,'','',0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-        # 'A','Österreich',33,15,0,0,2,-1,'AT','',0,1,'','',0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-        # 'AFR','Sonstige Afrikanische',55,27,0,0,2,-1,'','',0,1,'','',0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-        # 'B','Belgien',21,3,0,0,2,-1,'BE','',0,1,'','',0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-        # 'BRA','Brasilien',73,38,0,0,2,-1,'BR','',0,1,'','',0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-        # 'CAN','Kanada',70,35,0,0,2,-1,'CA','',0,1,'','',0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-        # 'CH','Schweiz',38,20,0,0,2,-1,'CH','',0,1,'','',0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-        # 'DK','Dänemark',22,4,0,0,2,-1,'DK','',0,1,'','',0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-        # 'S','Schweden',37,19,0,0,2,-1,'SE','',0,1,'','',0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-        # 'CZ','Tschische Republik',40,22,0,0,2,-1,'','',0,1,'','',0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-        # 'E','Spanien',39,21,0,0,2,-1,'ES','',0,1,'','',0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-        # 'F','Frankreich',24,6,0,0,2,-1,'FR','',0,1,'','',0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-        # 'FI','Finnland',23,5,0,0,2,-1,'FI','',0,1,'','',0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-        # 'GB','Großbritanien',26,8,0,0,1,-1,'en','',0,1,'','',0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-        # 'GR','Griechenland',25,7,0,0,2,-1,'GR','',0,1,'','',0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-        # 'H','Ungarn',42,24,0,0,2,-1,'HU','',0,1,'','',0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-        # 'I','Italien',29,11,0,0,2,-1,'IT','',0,1,'','',0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-        # 'IRL','Irland',27,9,0,0,2,-1,'IE','',0,1,'','',0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-        # 'ISL','Island',28,10,0,0,2,-1,'IS','',0,1,'','',0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-        # 'L','Luxembourg',30,12,0,0,2,-1,'','',0,1,'','',0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-        # 'N','Norwegen',32,14,0,0,2,-1,'NO','',0,1,'','',0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-        # 'P','Portugal',35,17,0,0,2,-1,'PT','',0,1,'','',0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-        # 'PL','Polen',34,16,0,0,2,-1,'PL','',0,1,'','',0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-        # 'GUS','Rußland',36,18,0,0,2,-1,'RU','',0,1,'','',0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-        # 'TK','Türkei',41,23,0,0,2,-1,'TR','',0,1,'','',0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-        # 'USA','USA',71,36,0,0,2,-1,'US','',0,1,'','',0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-        # 'NL','Niederlande',31,13,0,0,2,-1,'NL','',0,1,'','',0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-        # 'AUS','Australien',75,40,0,0,0,-1,'AU','',0,1,'','',0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+        # header VIPcode table schreiben - VIP Codes
+        header_vipcode = "create table vipcode (\"nr\" varchar(20) not null default '' ,\"bezeich\" varchar(40) not null default '' ,\"codenr\" int not null default 0 ,\"resblock\" int not null default 0 ,\"resremind\" int not null default 0 ,\"remindtx\" varchar(120) not null default '' ,\"showfo\" int not null default 0 ,\"sort\" varchar(10) not null default '' )\n"
+        export_file.write(header_vipcode)
+
+        # VIP Content - vipcode table conten deploy
+        #print("updated Inhaltssammler:", inhaltssammler_vipcode)
+        for line in inhaltssammler_vipcode:
+            # print(line)
+            export_file.write(str(line)+'\n')
+
+        #Bsp:
+        #'VIP1','VIP1',1,0,1,'Begrüßungsgetränk und Wellness- GS',0,''
+        #'VIP2','VIP2',2,0,1,'Begrüßungsgetränk, Wellness- GS, Obst, Sekt',0,''
+        #'Black1','Bläcklist1',3,0,1,'keine Reservierung ohne CC Info',0,''
+        #'Black2','Bläcklist2',4,1,1,'Unser Haus ist ausgebucht!{\r}{\n}keine Reservierung annehmen',0,''
+        #'Checklist','Checkliste',5,0,0,'Checkliste zur Installation (nicht löschen)',0,''
+
+
         print("all done: ", i-2000, " Gäste")
 csvtolvl1()
+
+
 
 
 def addgcomtolvl1():
