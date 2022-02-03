@@ -11,7 +11,8 @@ def csvtolvl1():
 # Musterfrau;Juliane;Musterstraße 1;01299;Dresden;Deutschland;DE;2;muster@prohotel-edv.de;03519111111;Sehr geehrte Frau Musterfrau;0;;;
 # Tesla;;Teslastraße 1;11299;Berlin;Deutschland;DE;;tesla@prohotel-edv.de;03019111111;Sehr geehrter Herr Musk;1;Alien;EAuto
 
-# TODO Marketcodes und VIP Codes mit verarbeiten
+# TODO VIP Codes testen
+# TODO Marketcodes mit verarbeiten
 # TODO Gästedaten und Firmendaten grundsätzlich getrennt von Kundenabfordern und Vorlage erstellen die Sie uns zuarbeiten müssen?
 # TODO error abfangen wenn delimiter ; statt , in csv damit nicht lange gesucht werden muss
 # TODO Länder noch weiter hinterlegen (Frankreich, England, Polen usw) > erledigt > noch testen
